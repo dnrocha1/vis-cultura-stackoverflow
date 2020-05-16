@@ -1,7 +1,9 @@
 ---
 title: "Comentários e cultura"
+author: Daniyel Rocha
 output:
     html_document:
+        code_folding: "hide"
     df_print: paged
 theme: sandstone
 ---
@@ -10,11 +12,15 @@ theme: sandstone
 library(tidyverse)
 library(here)
 library(viridis)
-source(here::here("code/lib.R"))
+
+library(GGally)
+library(gridExtra)
+
+# source(here::here("code/lib.R"))
 theme_set(theme_bw())
 
 knitr::opts_chunk$set(tidy = FALSE,
-                      fig.width = 6,
+                      fig.width = 9,
                       fig.height = 5)
 ```
 
@@ -44,11 +50,86 @@ Considerando essa variável, queremos examinar a relação entre ela e o quão h
 
 Faça uma visualização que usa os princípios de eficácia no projeto de visualizações para facilitar as comparações que você acha que são as mais importantes para entendermos esse contexto. 
 
+### Visualização
+
+```{r}
+dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, color = Internet, size = usuarios)) +
+    geom_point(alpha = 0.65) +
+    scale_color_distiller(palette="YlGnBu") +
+    scale_size_continuous(range = c(1, 10)) +
+    labs(color = "% de acesso à internet", size = "Qtd. de usuários", x = "Proporção de comentários")
+```
+Podemos observar pela visualização acima a relação entre a proporção de comentários feitos por um país (`comentaram_prop`) e a proporção de bem as pessoas dessa nacionalidade lidam com às desigualdades - considerando apenas as informações nos eixos x e y. É possível ver uma relação linear fraca e negativa, onde quanto mais a proporção de comentários aumenta, menos tolerantes às desigualdades as pessoas dos países serão.  
+Ao mesmo tempo, temos também as informações dos canais de tamanho e cor dos pontos, que nos indicam uma tendência de aumento no percentual de acesso à internet (`Internet`) na parte inferior direita, que representa nacionalidades que proporcionalmente mais comentam em publicações e também tem um baixo valor de `PDI`, lidando melhor com desigualdades. Esse último grupo caracterizado por três variáveis ainda pode ser melhor descrito ao levarmos em conta a quantidade de usuários presentes na base de dados, para o país (`usuarios`). Ela nos mostra que os países com maior percentual no acesso à internet geralmente tem uma base de dados maior, ou seja, mais usuários cadastrados, mais usuários que comentam e que também lidam bem com desigualdades. Por outro lado, a maioria dos países que tem uma menor proporção no acesso à internet vai possuir menos usuários na base de dados e comentam menos.
+
 ## Outras formas de ver
 
 Em seguida, faça 5 visualizações que usem as mesmas variáveis e também pontos, mas que sejam **menos eficazes** que a que você escolheu acima. 
 
+### Vis 1
+```{r}
+dados %>%
+    ggplot(aes(x = usuarios, y = PDI, color = Internet, size = comentaram_prop)) +
+    geom_point(alpha = 0.65) +
+    scale_color_distiller(palette="YlGnBu") +
+    labs(color = "% de acesso à internet", size = "Proporção de comentários", x = "Qtd. de usuários")
+```
+
+### Vis 2
+```{r}
+dados %>%
+    na.omit() %>% 
+    ggplot(aes(x = comentaram_prop, y = PDI, color = usuarios, size = Internet)) +
+    geom_point(alpha = 0.65) +
+    scale_color_distiller(palette="YlGnBu") +
+    labs(color = "Qtd. de usuários", size = "% de acesso à internet", x = "Proporção de comentários")
+```
+
+### Vis 3
+```{r}
+dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, color = Internet, size = usuarios)) +
+    geom_point(alpha = 0.65) +
+    scale_color_distiller(palette="Dark2") +
+    labs(color = "% de acesso à internet", size = "Qtd. de usuários", x = "Proporção de comentários")
+```
+
+### Vis 4
+```{r}
+dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, color = Internet, size = usuarios)) +
+    geom_point(alpha = 0.65) +
+    scale_color_distiller(palette="YlGnBu") +
+    scale_x_discrete() +
+    scale_size_continuous(range = c(1, 10)) +
+    labs(color = "% de acesso à internet", size = "Qtd. de usuários", x = "Proporção de comentários")
+```
+
+### Vis 5
+```{r}
+dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, color = Internet, size = usuarios, label = comentaram_prop)) +
+    geom_point(alpha = 0.65) +
+    geom_text() +
+    scale_color_distiller(palette="YlGnBu") +
+    scale_size_continuous(range = c(1, 10)) +
+    labs(color = "% de acesso à internet", size = "Qtd. de usuários", x = "Proporção de comentários")
+```
+
+
 ## Bônus
 
 Inclua o continente dos países (`six_regions`) na visualização.
+
+```{r}
+dados %>%
+    na.omit() %>% 
+    ggplot(aes(x = comentaram_prop, y = PDI, color = Internet, size = usuarios)) +
+    geom_point(alpha = 0.65) +
+    facet_wrap(six_regions~., ncol = 2) +
+    scale_color_distiller(palette="YlGnBu") +
+    scale_size_continuous(range = c(1, 10)) +
+    labs(color = "% de acesso à internet", size = "Qtd. de usuários", x = "Proporção de comentários")
+```
 
